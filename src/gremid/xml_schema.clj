@@ -7,9 +7,9 @@
    (java.io File InputStream OutputStream Reader StringReader StringWriter Writer)
    (java.net URI URL)
    (javax.xml XMLConstants)
-   (javax.xml.transform Result Source URIResolver)
-   (javax.xml.transform.dom DOMResult DOMSource)
-   (javax.xml.transform.stream StreamResult StreamSource)
+   (javax.xml.transform Source URIResolver)
+   (javax.xml.transform.dom DOMSource)
+   (javax.xml.transform.stream StreamSource)
    (javax.xml.validation Schema SchemaFactory)
    (net.sf.saxon Configuration)
    (net.sf.saxon.s9api DocumentBuilder Processor Serializer XdmDestination XdmNode XdmValue XPathCompiler XPathExecutable XsltCompiler XsltExecutable)
@@ -69,51 +69,37 @@
     xpath-compiler))
 
 (defprotocol IO
-  (->input-source [v])
   (->source [v])
-  (->result [v])
   (->xdm [v])
-  (->serializer [v])
-  (->seq [v])
-  (->str [v]))
+  (->serializer [v]))
 
 (extend-protocol IO
   Source
   (->source [^Source v] v)
   (->xdm [v] (.build doc-builder v))
 
-  Result
-  (->result [^Result v] v)
-
   NodeList
   (->xdm [v] (.wrap doc-builder v))
-  (->seq [v] (->seq (->xdm v)))
 
   Node
   (->source [^Node v] (DOMSource. v))
-  (->result [^Node v] (DOMResult. v))
   (->xdm [v] (.wrap doc-builder v))
-  (->seq [v] (->seq (->xdm v)))
 
   XdmNode
   (->source [v] (.asSource v))
   (->xdm [v] v)
-  (->seq [v] v)
-  (->str [v] (.getStringValue v))
 
   XdmDestination
   (->serializer [v] v)
 
   XdmValue
   (->xdm [v] v)
-  (->seq [v] v)
 
   Serializer
   (->serializer [v] v)
 
   File
   (->source [^File v] (StreamSource. v))
-  (->input-source [^File v] (->input-source (.toURI v)))
   (->xdm [v] (.build doc-builder v))
   (->serializer [v] (.newSerializer processor v))
 
@@ -124,30 +110,24 @@
 
   URL
   (->source [^URL v] (->source (.toURI v)))
-  (->input-source [^URL v] (->input-source (.toURI v)))
   (->xdm [v] (->xdm (->source v)))
 
   InputStream
   (->source [^InputStream v] (StreamSource. v))
-  (->input-source [^InputStream v] (InputSource. v))
   (->xdm [v] (->xdm (->source v)))
 
   OutputStream
-  (->result [^OutputStream v] (StreamResult. v))
   (->serializer [v] (.newSerializer processor v))
 
   Reader
   (->source [^Reader v] (StreamSource. v))
-  (->input-source [^Reader v] (InputSource. v))
   (->xdm [v] (->xdm (->source v)))
 
   Writer
-  (->result [^Writer v] (StreamResult. v))
   (->serializer [v] (.newSerializer processor v))
 
   String
   (->source [^String v] (->source (StringReader. v)))
-  (->input-source [^String v] (->input-source (StringReader. v)))
   (->xdm [v] (->xdm (->source v)))
   (->serializer [v] (->serializer (io/file v))))
 
@@ -189,7 +169,6 @@
   [rnc rng]
   (when-not (= 0 (.run (Driver.) (into-array String (list rnc rng))))
     (throw (ex-info "Error while converting RNC to RNG" {:rnc rnc :rng rng}))))
-
 
 (def rng-schema-factory
   (let [^SchemaFactory sf
