@@ -1,0 +1,547 @@
+default namespace = 'http://www.dwds.de/ns/1.0'
+namespace sch = 'http://purl.oclc.org/dsdl/schematron'
+
+#####################################################################
+# Etymologie
+# (nicht konsistent modelliert,
+# da in der lexikografischen Bearbeitung vorerst zurückgestellt)
+#####################################################################
+
+
+# TODO: detect invalid apostrophe (&apos;) too
+[
+  sch:pattern [
+    sch:rule [
+      context = "//d:Diachronie"
+      sch:assert [
+        test = """not(contains(string-join(.//text(), ''), '"') or contains(string-join(.//text(), ''), '‘') or contains(string-join(.//text(), ''), "'") )"""
+        'Unzulässige Typografie in Diachronie: erwaehntes_Zeichen und Paraphrase nutzen?'
+      ]
+    ]
+  ]
+]
+
+Diachronie = element Diachronie {
+	Metadaten.allgemein ?
+	, element Etymologie {
+	    attribute class { 'invisible' } ?
+	    , freie_Beschreibung
+	}
+	, element Formgeschichte {
+	    attribute class { 'invisible' } ?
+	    , freie_Beschreibung
+	}
+	, element Bedeutungsgeschichte {
+	    attribute class { 'invisible' } ?
+	    , freie_Beschreibung
+	}
+	, element Verweise {
+		element Verweis {
+			attribute Typ { 'EtymWB' | 'Sprachlehre' | 'Wahrig' | 'WGd' | 'eWDG' }
+			, attribute class { 'invisible' } ?
+			, Verweisziel
+		} *
+	}
+}
+
+freie_Beschreibung = mixed {
+    Paraphrase *
+    & erwaehntes_Zeichen *
+    & Stilebene *
+    & Stilfaerbung *
+    & Sprachraum * # deprecated
+    & Sprachareal *
+    & Gebrauchszeitraum *
+    & Gruppensprache *
+    & Fachgebiet *
+    & semantischer_Verweis *
+    & externer_Verweis *
+    & Fundstelle *
+    & Orthografieregel *
+    & Hervorhebung *
+    & element Stichwort { Lemmatoken }*
+}
+
+Kommentar = element Kommentar {
+	Metadaten.allgemein ?
+	, attribute class { 'invisible' } ?
+	, freie_Beschreibung
+}
+
+erwaehntes_Zeichen = element erwaehntes_Zeichen {
+    attribute Sprache { list { Sprachen + } }
+	, token
+}
+
+Sprachen = (
+	'UNKNOWN'
+	| 'abret'        # obt: Old Breton
+	| 'abulg'        # chu: Old Bulgarian
+	| 'adän'
+	| 'ägypt'       # egy: Egyptian (Ancient)
+	| 'aengl'        # ang: Old English (ca. 450-1100)
+	| 'äol'
+	| 'affade'
+	| 'afghan'       # prs: Afghan Persian
+	| 'afries'       # ofs: Old Frisian
+	| 'afrikan'
+	| 'afrikaans'
+	| 'afrk'
+	| 'afrz'         # fro: Old French (842-ca. 1400)
+	| 'agaskogn'
+	| 'ahd'          # goh: Old High German (ca. 750-1050) [a-s]
+	| 'aimara'
+	| 'aind'
+	| 'ainu'
+	| 'air'          # sga: Old Irish (to 900)
+	| 'aital' 
+	| 'akatalan'
+	| 'akkad'        # akk: Akkadian
+	| 'akorn'        # oco: Old Cornish
+	| 'akymr'        # owl: Old Welsh
+	| 'alat'         # ?== Old Latin
+	| 'alban'        # sqi: Albanian
+	| 'alem'         # gsw: Alemannic
+	| 'algonkin'
+	| 'alit' 
+	| 'altalem'
+	| 'altarmen'     # xcl: Classical Armenian
+	| 'altgutn'
+	| 'altiran'      # ?== Old Persian (ca. 600-400 B.C.)
+	| 'altköln'
+	| 'altkur'       # altkurisch
+	| 'altmärk'
+	| 'altmailänd'
+	| 'altnorm'
+	| 'altobital'
+	| 'altvenezian'
+	| 'amerik' 
+	| 'amerik-engl'
+	| 'amerik-span'
+	| 'amongol'      # cmg: Classical Mongolian
+	| 'amoy'
+	| 'anfrk'
+	| 'angl' 
+	| 'angloind' 
+	| 'anglolat' 
+	| 'anglomlat'
+	| 'anglonorm'    # xno: Anglo-Norman
+	| 'anord'        # non: Old Norse
+	| 'anorw' 
+	| 'aostnfrk' 
+	| 'apers'        # peo: Old Persian (ca. 600-400 B.C.)
+	| 'apikard'
+	| 'apolab'
+	| 'apolab-apomoran'
+	| 'apoln'
+	| 'apomoran'
+	| 'apreuß'
+	| 'aprov'        # pro: Old Provençal (to 1500)
+	| 'arab'         # ara: Arabic
+	| 'arab-türk'
+	| 'aram'         # ?arc: Official Aramaic (700-300 BCE)
+	| 'arawak'
+	| 'armen'        # hye: Armenian
+	| 'aruak'        # == Taino?
+	| 'aruss'        # orv: Old Russian
+	| 'asächs'      # osx: Old Saxon
+	| 'aschkenas'
+	| 'aschwed'
+	| 'aserbaidshan'
+	| 'aslaw'        # chu: Old Slavonic
+	| 'aslowen'
+	| 'asorb'
+	| 'aspan'        # osp: Old Spanish
+	| 'assyr'
+	| 'atschech'
+	| 'att'
+	| 'austral'
+	| 'awest'        # ave: Avestan
+	| 'aztek'
+	| 'babyl-assyr'
+	| 'bad'
+	| 'bair'
+	| 'balkangerm'
+	| 'balkanlat'
+	| 'balt'         #
+	| 'balti'
+	| 'bantu'
+	| 'bask'         # eus: Basque
+	| 'beloruss'
+	| 'bengal'
+	| 'berber'
+	| 'berlin'
+	| 'bibl-griech'
+	| 'böhm'       #
+	| 'bosn'         # Bosnian
+	| 'botan-lat'
+	| 'brabant-ostfläm'
+	| 'brandenburg'
+	| 'bret'         # bre: Breton
+	| 'brit-engl' 
+	| 'bulg'         # bul: Bulgarian
+	| 'burgund'
+	| 'byzant'
+	| 'byzant-griech'
+	| 'canarese'
+	| 'chines' 
+	| 'clev'
+	| 'dän'         # dan: Danish
+	| 'dalmat'
+	| 'dhivehi'
+	| 'dor'
+	| 'drawid'
+	| 'dschagata'
+	| 'dt'           # 
+	| 'elsäss'
+	| 'engadin'
+	| 'engl'         # eng: English
+	| 'eskim'
+	| 'esperanto'
+	| 'estn'         # est: Estonian
+	| 'fidschi'
+	| 'finn'         # fin: Finnish
+	| 'fläm'
+	| 'flandr'
+	| 'florentin'
+	| 'fries'
+	| 'frk'          # frk: Frankish
+	| 'frühgalloroman'
+	| 'frühmhd'     # 
+	| 'frühnhd'
+	| 'frz'          # fra: French
+	| 'gäl'         # gla: Gaelic
+	| 'galiz'
+	| 'gall'
+	| 'gall-lat'
+	| 'gall-spätlat'
+	| 'galloroman'
+	| 'geg'          # # gegisch
+	| 'gemeingerm'
+	| 'gemeinslaw'
+	| 'germ'
+	| 'got'          # got: Gothic
+	| 'got-griech'
+	| 'götting'
+	| 'griech'       # ell: Modern Greek (1453-)
+	| 'griech-kirchenlat'
+	| 'griech-lat'
+	| 'griech-spätlat'
+	| 'grödner'
+	| 'grönländ'
+	| 'guarani'      # grn: Guarani
+	| 'gujarati'
+	| 'hamit'
+	| 'hans'         # hansisch
+	| 'hawai'        # hawaiisch
+	| 'hd'
+	| 'hebr'         # hbo: Ancient Hebrew
+	| 'hess'         # 
+	| 'hethit'
+	| 'hindi'        # hin: Hindi
+	| 'hindust'
+	| 'hispano-arab' # ?xaa: Andalusian Arabic
+	| 'hochchines'
+	| 'holl'
+	| 'holst'
+	| 'hunn'
+	| 'ibero-arab'   # ?xaa: Andalusian Arabic
+	| 'ie'
+	| 'illyr'
+	| 'ind'
+	| 'indian'
+	| 'indones'
+	| 'inuktitut'
+	| 'ion'
+	| 'ir'           # gle: Irish
+	| 'isl'          # isl: Icelandic
+	| 'ital'         # ita: Italian
+	#| 'italisch'
+	| 'italo-alban'
+	| 'jakut'
+	| 'japan'        # jpn: Japanese
+	| 'jidd'         # yid: Yiddish
+	| 'kärtner'
+	| 'kalabr'
+	| 'kalmyk'
+	| 'kantones'
+	| 'kar'
+	| 'karel'
+	| 'karib'
+	| 'kasach'
+	| 'kaschub'
+	| 'katalan'      # cat: Catalan
+	| 'kelt'
+	| 'ketschua'
+	| 'khoi-san'
+	| 'kimbundu'     # kmb: Kimbundu
+	| 'kirchenlat'
+	| 'kolalapp'
+	| 'kongo'
+	| 'kontinentalingwäon'
+	| 'kontinentalwestgerm'
+	| 'kopt'         # cop: Coptic
+	| 'korn'         # cor: Cornish
+	| 'korean'
+	| 'koybal'
+	| 'krimgot'
+	| 'krimtatar'
+	| 'kroat'        # hrv: Croatian
+	| 'kslaw'        # chu: Church Slavonic
+	| 'kuban-span'
+	| 'kurd'
+	| 'kymr'         # cym: Welsh
+	| 'kypr'
+	| 'langobard'    # lng: Langobardic
+	| 'lat'          # lat: Latin
+	| 'lett'
+	| 'lit'          # lit: Lithuanian
+	| 'lombard'      # ?== lmo: Lombard
+	| 'lüneburg'
+	| 'luxemburg'
+	| 'maghrebin-arab'
+	| 'mal'          # msa: Malay (macrolanguage)
+        | 'malag'        # mlg: Malagasy
+        | 'malajalam'
+	| 'maldiv'       # div: Maldivian
+	| 'maori'
+	| 'marathi'
+	| 'maya'
+	| 'mbulg'
+	| 'md'
+	| 'mecklenb'
+	| 'medizin-lat'
+	| 'medizin-mlat'
+	| 'mengl'        # enm: Middle English (1100-1500)
+	| 'merowing-lat'
+	| 'messap'       # cms: Messapic
+	| 'mexikan-span'
+	| 'mfrk'
+	| 'mfrz'         # frm: Middle French (ca. 1400-1600)
+	| 'mgriech'
+	| 'mhd'          # gmh: Middle High German (ca. 1050-1500)
+	| 'mind'
+	| 'mir'          # mga: Middle Irish (900-1200)
+	| 'mitanni'
+	| 'mitteliran'
+	| 'mittelital'
+	| 'mittelrhein'
+	| 'mkorn'        # cnx: Middle Cornish
+	| 'mkymr'        # wlm: Middle Welsh
+	| 'mlat'
+	| 'mnd'          # gml: Middle Low German
+	| 'mnl'          # dum: Middle Dutch (ca. 1050-1350)
+	| 'mongol'       # mon: Mongolian
+	| 'moselfrk'
+	| 'mpers'
+	| 'mruss'
+	| 'nachgot'
+	| 'nahuatl'
+	| 'nd'           # nds: Low German
+	| 'neapolitan'
+	| 'nepali'
+	| 'nfrk'
+	| 'ngriech'      # ell: Modern Greek (1453-)
+	| 'nhd'          # deu: German 
+	| 'nhebr'        # heb: Hebrew
+	| 'nicht-ie'
+	| 'nicht-fries'
+	| 'niederhess'
+	| 'niederrhein'
+	| 'nordhumbr'
+	| 'nl'           # nld: Dutch
+	| 'nlat'
+	| 'nordafrikan'
+	| 'nordafrz'
+	| 'nordbair'
+	| 'nordd'        # ?== nds: Low German?
+	| 'nordgerm'
+	| 'nordfries'    # frr: Northern Frisian
+	| 'nordital'
+	| 'nordmfrz'
+	| 'nordostd'
+	| 'nordpomoran'
+	| 'nordfrz'
+	| 'nordwestd'
+	| 'nordwestgerm'
+	| 'nordwestmd'
+	| 'nordwestnd'
+	| 'norm'
+	| 'norw'         # nor: Norwegian
+	| 'norw-lapp'
+	| 'nsächs'      # nds: Low Saxon
+	| 'nsorb'        # dsb: Lower Sorbian
+	| 'nub'
+	| 'obd'
+	| 'obelsäss'
+	| 'obfrk'
+	| 'obhess'
+	| 'obital'
+	| 'obsächs'
+	| 'obsorb'       # hsb: Upper Sorbian
+	| 'obwald'
+	| 'ostfries'       # frs: Eastern Frisian
+	| 'oirot'
+	| 'ojibwa'
+	| 'okzitan'
+	| 'omd'
+	| 'oriya'
+	| 'osk'          # osc: Oscan
+	| 'osk-umbr'
+	| 'osset'        # oss: Ossetian
+	| 'ostafrz'
+	| 'ostbair'
+	| 'ostd'
+	| 'ostfläm'
+	| 'ostfrk'
+	| 'ostfrz'
+	| 'ostgerm'
+	| 'ostie'
+	| 'ostlit'
+	| 'ostmnl'
+	| 'ostnd'
+	| 'ostpreuß'
+	| 'pali'
+	| 'panjabi'
+	| 'paschtun'
+	| 'pers'         # fas: Persian
+	| 'pers-arab'
+	| 'pfälz'
+	| 'phön'       # phn: Phoenician
+	| 'piemont'
+	| 'pikard'       # pcd: Picard
+	| 'polab'
+	| 'polabopomoran'
+	| 'poln'         # pol: Polish
+	| 'polynes'
+	| 'pomoran'
+	| 'port'         # por: Portuguese
+	| 'powhatan'
+	| 'prov'
+	| 'pseudolat'
+	| 'rätoroman'
+	| 'rhein'
+	| 'roman'
+	| 'romani'
+	| 'rotw'
+	| 'rumän'       # ron: Romanian
+	| 'russ'         # rus: Russian
+	| 'russ-kslaw'
+	| 'saam'
+	| 'sagha'
+	| 'sanskrit'
+	| 'sard'
+	| 'savoyard'
+	| 'schles'
+	| 'schlesw-holst'
+	| 'schott'
+	| 'schwäb'
+	| 'schwäb-alem'
+	| 'schwäb-bair'
+	| 'schwed'       # swe: Swedish
+	| 'schweiz'      # gsw: Swiss German 
+	| 'schweizerdt'  # == schweiz?
+	| 'schweiz-frz'
+	| 'semit'
+	| 'senegamb'
+	| 'serb-kslaw'
+	| 'serbokr'      # hbs: Serbo-Croatian
+	| 'serbokr-kslaw'
+	| 'singhal'
+	| 'sizilian'
+	| 'slaw'
+	| 'slowak'       # slk: Slovak
+	| 'slowen'       # slv: Slovenian
+	| 'sojon'
+	| 'sorb'
+	| 'spätahd'
+	| 'spätgall'
+	| 'spätgot'
+	| 'spätgriech'
+	| 'spätlat'
+	| 'spätmhd'
+	| 'spätmnd'
+	| 'spätmnl'
+	| 'span'         # spa: Spanish
+        | 'steir'        # steirisch
+	| 'südchines'
+	| 'südd'
+	| 'südhess'
+	| 'südind'
+	| 'südital'
+	| 'südmnl'
+	| 'südnl'
+	| 'südostd'
+	| 'südostfrz'
+	| 'südrheinfrk'
+	| 'südschwed'
+	| 'südslaw'
+	| 'südwestd'
+	| 'südwestfrz'
+	| 'sumer'        # sux: Sumerian
+	| 'sumer-akkad'
+	| 'swahili'
+	| 'syr'
+	| 'tahit'
+	| 'taino'        # == aruak?
+	| 'tamil'        # tam: Tamil
+	| 'tarantschi'
+	| 'telugu'
+	| 'tessin'
+	| 'thai'
+	| 'thür'
+	| 'tibet'
+	| 'tirol'
+	| 'thrak'        # txh: Thracian
+	| 'toch_A'
+	| 'toch_B'
+	| 'tosk'
+	| 'tschech'      # ces: Czech
+	| 'tswana'       # tsn: Tswana
+	| 'tungus'
+	| 'tupi'         # tpw: Tupí
+	| 'türk'
+	| 'turk'
+	| 'turkotatar'
+	| 'uigur'
+	| 'ukrain'       # ukr: Ukrainian
+	| 'umbr'         # xum: Umbrian
+	| 'ungar'        # hun: Hungarian
+	| 'urdu'         # urd: Urdu
+	| 'urkelt'
+	| 'urnord'
+	| 'urruss'
+	| 'urslaw'
+	| 'venezian'
+	| 'vlat'
+	| 'vogtländ'
+	| 'volapük'
+	| 'vor-ie'
+	| 'vorlat'
+	| 'vorkelt'
+	| 'vorslaw'
+	| 'vorroman'
+	| 'vulgärarab'
+	| 'vulgärgriech'
+	| 'waldeck'
+	| 'wallon'       # wln: Walloon
+	| 'walis'
+	| 'westafrikan'
+	| 'westd'
+	| 'westfäl'
+	| 'westfläm'
+	| 'westfrz'
+	| 'westfries'    # fry: Western Frisian
+	| 'westgerm'
+	| 'westjidd'
+	| 'westmd'
+	| 'westnd'
+	| 'westobd'
+	| 'westroman'
+	| 'westsächs'
+	| 'westslaw'
+	| 'zigeuner'
+        | 'zaza'
+	| 'zoolog-lat'
+	| 'zulu'
+)

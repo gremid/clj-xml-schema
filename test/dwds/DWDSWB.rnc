@@ -1,0 +1,40 @@
+default namespace = 'http://www.dwds.de/ns/1.0'
+namespace sch = 'http://purl.oclc.org/dsdl/schematron'
+
+include 'Metadata.rnc'
+include 'Structure.rnc'
+include 'Diachrony.rnc'
+include 'Grammar.rnc'
+include 'Usage.rnc'
+
+[
+  sch:ns [
+    prefix = "d"
+    uri = "http://www.dwds.de/ns/1.0"
+  ]
+  sch:pattern [
+    sch:rule [
+      context = "//*[@xml:space]"
+      sch:assert [
+        test = "@xml:space = 'preserve'"
+        'Kein @xml:space="preserve"'
+      ]
+    ]
+  ]
+]
+start = element DWDS {
+	element Artikel {
+		attribute xml:id { Metadaten.Artikel-ID }
+		, Metadaten.allgemein
+		, Metadaten.Artikel
+		# lexikografische Basisstruktur der Artikel
+		, Ueberschrift ?
+		, Kommentar ? # wird praktisch nicht genutzt
+		, Formangabe +
+                , Orthografie
+		, morphologische_Verweise + # getrennte morph. Analysen
+		, Diachronie
+		, Lesartangabe +
+		, Rohdaten
+	} +
+}

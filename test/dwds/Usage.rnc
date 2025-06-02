@@ -1,0 +1,804 @@
+#############################
+# Markierungen ##############
+#############################
+
+Frequenzangaben = (
+	'nur'
+	| 'besonders' # D99
+	| 'häufig'
+	| 'meist'
+	| 'oft' # D99, selten auch: öfter
+	| 'gelegentlich' # D99
+	| 'selten'
+	| 'seltener' # D99, auch: gelegentlich
+	| 'leicht' # D99
+	| 'noch' # D99
+	| 'sonst' # D99
+	| 'nicht'
+)
+
+Frequenzangabe = element Frequenzangabe { Frequenzangaben }
+Frequenzbeschraenkung = attribute Frequenz { Frequenzangaben }
+
+Sprachareal = element Sprachareal {
+	Frequenzbeschraenkung ?
+	, (
+		# unspezifisch
+		'regional'
+		# Metaareale
+		| 'D'
+		| 'D-Nord'
+		| 'D-Mitte'
+		| 'D-Süd'
+		| 'D-West'
+		| 'D-Ost'
+		| 'D-Mittelwest+LUX+BELG'
+		| 'CH+LIE'
+		| 'A+STIR'
+		# Deutschland
+		| 'D-Nordwest'
+		| 'D-Nordwest (Schleswig-Holstein)'
+		| 'D-Nordwest (Hamburg)'
+		| 'D-Nordwest (Bremen)'
+		| 'D-Nordwest (Niedersachsen-Nord)'
+		| 'D-Nordwest (Westfalen-Nord)'
+		| 'D-Nordwest (Westfalen-Süd)'
+		| 'D-Nordwest (Ruhr)'
+		| 'D-Nordwest (Ostfalen)'
+		| 'D-Nordwest (Magdeburg)'
+		| 'D-Nordost'
+		| 'D-Nordost (Mecklenburg-Vorpommern)'
+		| 'D-Nordost (Brandenburg)'
+		| 'D-Nordost (Berlin)'
+		| 'D-Nordost (Altmark)'
+		| 'D-Mittelwest'
+		| 'D-Mittelwest (Nordrhein)'
+		| 'D-Mittelwest (Mittelrhein/Mosel)'
+		| 'D-Mittelwest (Mittelrhein/Mainz)'
+		| 'D-Mittelwest (Saarland)'
+		| 'D-Mittelwest (Hessen)'
+		| 'D-Mittelost'
+		| 'D-Mittelost (Niederlausitz)'
+		| 'D-Mittelost (Anhalt)'
+		| 'D-Mittelost (Sachsen)'
+		| 'D-Mittelost (Thüringen)'
+		| 'D-Mittelost (Harz)'
+		| 'D-Mittelost (Nordhessen)'
+		| 'D-Südwest'
+		| 'D-Südwest (Baden)'
+		| 'D-Südwest (Württemberg)'
+		| 'D-Südwest (Bayerisch-Schwaben)'
+		| 'D-Südost'
+		| 'D-Südost (Thüringer Wald)'
+		| 'D-Südost (Franken)'
+		| 'D-Südost (Altbayern)'
+		# Schweiz
+		| 'CH'
+		| 'CH-West'
+		| 'CH-Nordost'
+		| 'CH-Ost'
+		| 'CH-Zentral'
+		| 'CH-Süd'
+		# Österreich
+		| 'A'
+		| 'A-West (Vorarlberg)'
+		| 'A-West (Tirol)'
+		| 'A-Mitte'
+		| 'A-Ost'
+		| 'A-Südost'
+		# Andere
+		| 'BELG'
+		| 'LUX'
+		| 'LIE'
+		| 'STIR'
+	)
+}
+
+Bedeutungsebene = element Bedeutungsebene {
+	Frequenzbeschraenkung ?
+	, (
+		'bildlich'
+		| 'im Bild'
+		| 'übertragen'
+		| 'vergleichend'
+		| 'sprichwörtlich' # TODO: das ist keine Bedeutungsebene, eher eine Stilfärbung!
+			| 'biblisch' # TODO: wie sprichwörtlich
+		| 'metonymisch'
+		| 'spezieller'
+		| 'allgemeiner'
+		| 'eigentlich' # vor allem für die Etymologie wichtig
+	)
+}
+
+Stilebene = element Stilebene {
+	Frequenzbeschraenkung ?
+	, (
+		'bildungssprachlich'
+		| 'fachsprachlich'
+		| 'gehoben'
+		| 'gemeinsprachlich'
+		| 'mundartlich' # D99
+		| 'salopp'
+		| 'umgangssprachlich'
+		| 'vulgär'
+	)
+}
+
+Stilfaerbung = element Stilfaerbung {
+	Frequenzbeschraenkung ?
+	, (
+		'abwertend'
+		| 'altertümelnd'
+		| 'anerkennend'
+		| 'derb'
+		| 'dichterisch'
+		| 'diskriminierend'
+		| 'emotional' # D99 meist: emotional verstärkend
+		| 'familiär'
+		| 'gespreizt'
+		| 'höflich'
+		| 'ironisch'
+		| 'Kosewort' # ZDL/Wahrig
+		| 'papierdeutsch' # D99 == amtssprachlich?
+		| 'scherzhaft'
+		| 'Schimpfwort'
+		| 'spöttisch'
+		| 'übertrieben'
+		| 'untertrieben'
+		| 'verhüllend'
+		| 'verstärkend'
+		| 'vertraulich' # D99 == fam.?
+		| 'verächtlich' # D99
+		| 'volkstümlich' # D99 ??
+	)
+}
+
+Gebrauchszeitraum = element Gebrauchszeitraum {
+	Frequenzbeschraenkung ?
+	, (
+		'historisch' #
+		| 'früher' # D99
+			| 'DDR'
+                        | 'nationalsozialistisch'
+		| 'veraltet'
+		| 'veraltend'
+	)
+}
+
+Sprachraum = element Sprachraum {
+	# deprecated
+	Frequenzbeschraenkung ?
+	, (
+		'landschaftlich'
+		| 'regional' # D99 --> landschaftlich?
+		| 'alemannisch' # D99
+		| 'badisch' # D99
+		| 'bayrisch'
+		| 'berlinisch'
+		#| 'dithmarsisch' # D99
+		| 'hessisch' # D99
+		| 'jiddisch' # D99
+		| 'mecklenburgisch'
+		| 'mitteldeutsch'
+		| 'norddeutsch'
+		| 'nordostdeutsch'
+		| 'nordwestdeutsch'
+		| 'obersächsisch' # D99
+		| 'ostdeutsch' # D99
+		| 'österreichisch'
+		| 'ostmitteldeutsch'
+		| 'ostniederdeutsch' # D99
+		| 'ostösterreichisch' # D99
+		| 'ostpreußisch' # D99
+		| 'pfälzisch' # D99
+		| 'preußisch' # D99
+		| 'rheinisch' # D99
+		| 'sächsisch' # D99
+		| 'schlesisch' # D99
+		| 'schwäbisch' # D99
+		| 'schweizerisch'
+		| 'süddeutsch'
+		| 'südostösterreichisch' # D99
+		| 'südtirolerisch' # D99 TODO: ~tirolisch
+		| 'südwestdeutsch'
+		| 'tirolisch' # D99
+		| 'westdeutsch' # D99
+		| 'westmitteldeutsch'
+		| 'westösterreichisch' # D99
+		| 'wienerisch' # D99
+	)
+}
+
+Gruppensprache = element Gruppensprache {
+	Frequenzbeschraenkung ?
+	, (
+		'Amtssprache'
+		| 'Bergmannssprache'
+		| 'Druckersprache' # D99
+		| 'Fliegersprache'
+		| 'Gaunersprache' # D99
+		| 'Gewerbesprache' # D99
+		| 'Imkersprache' # D99
+		| 'Jägersprache'
+		| 'Jargon' # TODO: Was soll das? Welche Gruppe bezeichnet das?
+		| 'Journalistensprache'
+		| 'Jugendsprache'
+		| 'Kaufmannssprache'
+		| 'Kindersprache'
+		| 'Politikersprache' # DWDS
+		| 'Rechtssprache' # D99
+		| 'Schülersprache'
+		| 'Seemannssprache'
+		| 'Soldatensprache'
+		| 'Studentensprache'
+		| 'Verwaltungssprache' # D99
+		| 'Werbesprache'
+		| 'Winzersprache' # D99
+	)
+}
+
+Fachgebiet = element Fachgebiet {
+	Frequenzbeschraenkung ?
+	# Notation: 
+	# +D99: aus D99; soll auch von uns übernommen werden
+	# -D99: aus D99; soll nicht von uns übernommen werden, von allen Beteiligten bestätigt
+	# /* AG: Kommentare von mir
+	# /* LL: Kommentare von mir(2)
+	# /* NSch: Kommentare von mir
+	# +AG: Fachgebiet, das man aufnehmen sollte.
+	# -WDG = hat WDG, wollen wir aber nicht mehr verwenden
+	# +LL neu von LL eingeführt, von NSch bestätigt
+	, (
+	'Demoskopie'
+	| 'Arbeitswelt' # AH: inhaltlich völlig unklar
+	| 'Brauchtum'
+	| 'Ernährung'
+	| 'Esoterik'
+	| 'Astrologie' # D99
+	| 'Freimaurerei' # -D99
+	| 'Okkultismus' # D99
+	| 'Parapsychologie' # -D99
+	| 'Handarbeit'
+	| 'Nähen' # D99 auch: Näherei
+	| 'Stricken' # D99
+	| 'Jagdwesen'   
+	| 'Kosmetik' # D99
+	| 'Kunst'
+	| 'bildende Kunst' 
+	| 'Bildhauerei' # D99
+	| 'Grafik' # D99
+	| 'Malerei' # D99
+	| 'moderne Kunst' # -D99	
+	| 'darstellende Kunst' # NSch/AG  
+	| 'Film'  
+	| 'Kino' # D99 
+	| 'Tanz'   
+	| 'Ballett' # D99 
+	| 'Theater'
+	| 'Varieté'
+	| 'Zirkus'
+	| 'Medien'
+	| 'Internet'
+	| 'Presse'
+	| 'Rundfunk' # D99
+	| 'Fernsehen'
+	| 'Radio'
+	| 'Militär'
+	| 'Marine' # D99
+	| 'Mode'
+	| 'Musik'  
+	| 'elektronische Musik' # D99
+	| 'Jazz' # D99
+	| 'Kabarett' # D99
+	| 'Kirchenmusik' # D99
+	| 'Klavierspiel' # D99
+	| 'mittelalterliche Musik' # D99
+	| 'Popmusik' # AG  	
+	| 'Rockmusik' # D99 
+	| 'Mythologie'
+	| 'germanische Mythologie' # +D99
+	| 'griechische Mythologie' # +D99
+	| 'griechisch-römische Mythologie' # +D99
+	| 'indische Mythologie' # +AG
+	| 'nordische Mythologie' # +D99
+	| 'römische Mythologie' # +D99
+	| 'sumerische Mythologie' # +D99
+	| 'Philatelie' # D99 
+	| 'Politik'
+	| 'Diplomatie' # D99
+	| 'Parlament' # D99
+	| 'Religion'
+	| 'Religionswissenschaft' # -D99
+	| 'Anthroposophie' # D99
+	| 'antike Religion' # D99
+	| 'Buddhismus' # D99
+	| 'christliche Religion' # D99
+	| 'christliche Kirche'  # D99
+	| 'evangelische Kirche' # D99
+	| 'evangelische Religion' # D99
+	| 'katholische Kirche' # D99, auch: katholische Liturgie
+	| 'katholische Religion' # D99
+	| 'orthodoxe Kirche' # D99
+	| 'Ökumene' # ~D99
+	| 'griechische Religion' # D99 
+	| 'griechische Kirche' # -D99
+	| 'indische Religion' # D99 
+	| 'Buddhismus' # +LL
+	| 'Hinduismus' # D99
+	| 'islamische Religion' # D99
+	| 'israelitische Religion' # -D99 
+	| 'jüdische Religion' # D99 
+	| 'Mystik' # D99 
+	| 'Spiel'
+	| 'Brettspiel' # D99
+	| 'Schach' # D99 auch: Schachspiel
+	| 'Problemschach' # -D99 TODO: --> Schach
+	| 'Computerspiel'
+	| 'Domino' #-DWDS @LL: prüfen
+	| 'Gesellschaftsspiel'
+	| 'Glücksspiel' # D99
+	| 'Lotto' # -D99  
+	| 'Toto' # -D99  
+	| 'Kartenspiel'
+	| 'Bridge' # D99
+	| 'Doppelkopf' # +LL
+	| 'Poker' # D99
+	| 'Skat'
+	| 'Whist' # -D99
+	| 'Kinderspiel'
+	| 'Sport'
+	| 'Angelsport' # D99, auch: Angeln
+	# | 'Ballspiel' # D99: Ballspiele gestrichen, jetzt: Ballsport
+	| 'Ballsport' # neu: 2021-05-04
+	| 'Badminton' # D99
+	| 'Baseball' # D99
+	| 'Basketball' # D99
+	| 'Billard'
+	| 'Faustball' # D99
+	| 'Football' # D99
+	| 'Fußball'
+	| 'Golf' # D99
+	| 'Handball'
+    | 'Hallenhandball' # -D99
+	| 'Hockey'
+	| 'Feldhockey' # -D99
+	| 'Korbball' # -D99  
+	| 'Polo' # D99
+	| 'Kanupolo' # D99
+	| 'Radpolo' # D99
+	| 'Prellball' # D99
+	| 'Radball' # D99 
+	| 'Rugby'
+	| 'Schlagball' # D99
+	| 'Squash' # D99
+	| 'Tennis'
+	| 'Tischtennis' # D99
+	| 'Völkerball' # D99
+	| 'Volleyball'
+	| 'Wasserball' # D99
+	| 'Bergsport' 
+	| 'Alpinistik' # -D99, --> Bergsteigen
+	| 'Bergsteigen' # D99 
+	| 'Berufssport' # D99
+	| 'Bowling' # D99
+	| 'Kampfsport' # neu: 2022-06-22
+	| 'Boxen'
+	| 'Budo' # D99
+	| 'Kendo' # -D99
+	| 'Catchen' #-D99  
+	| 'Fechten'
+	| 'Flugsport' # D99
+	| 'Joga' # D99
+	| 'Judo' # D99
+	| 'Kegeln'
+	| 'Kunstfahren' # D99
+	| 'Kunstfliegen' # D99
+	| 'Kunstkraftsport' # -D99
+	| 'Kunstspringen' # D99
+	| 'Leichtathletik'
+	| 'Hammerwerfen' # D99
+	| 'Kugelstoßen' # D99
+	| 'Laufen'
+	| 'Staffellauf' # D99
+	| 'Speerwerfen'
+	| 'Weitsprung' # D99
+	| 'Hochsprung' # D99
+	| 'Mannschaftssport' # D99
+	| 'Minigolf' # D99
+	| 'Motorsport'
+	| 'Automobilsport' # D99, --> Rennsport, Motorsport?
+	| 'Motorradsport' # D99
+	| 'Pferdesport' # D99
+	| 'Reiten' # D99 auch Reitsport
+	| 'Dressurreiten' # D99
+	| 'Pferderennen' # D99
+	| 'Trabrennen' # D99
+	| 'Springreiten' # D99
+	| 'Radsport' 
+	| 'Rennsport' # D99, Auto-, Pferde- usw. -rennsport
+	| 'Ringen'
+	| 'Rollkunstlauf' # -D99 
+	| 'Rollschuhlauf'
+	| 'Rugby'
+	| 'Schießen' # D99 auch Schießsport
+	| 'Schwerathletik' # D99
+	| 'Gewichtheben' # D99
+	| 'Segelfliegen'
+	| 'Turnen'
+	| 'Bodenturnen' # D99
+	| 'Geräteturnen' # D99
+	| 'Gymnastik' 
+	| 'Kunstturnen' # D99
+	| 'Schauturnen' #-D99
+	| 'Trampolinspringen' # D99 auch: Trampolinturnen
+	| 'Wassersport' 
+	| 'Kanusport' # D99
+	| 'Rudern'
+	| 'Schwimmen'
+	| 'Segeln' # D99 auch: Rennsegeln
+	| 'Tauchsport' # D99
+	| 'Wasserspringen' # D99
+	| 'Wintersport'
+	| 'Bobsport' # D99
+	| 'Curling' # +AG
+	| 'Eishockey'
+	| 'Eislauf'  
+	| 'Eiskunstlauf' 
+	| 'Eisschnelllauf' 
+	| 'Eissegeln' # D99
+	| 'Rodeln' # D99
+	| 'Skisport' # AG: Ski -> Skisport (D99 auch: Ski)
+	| 'Skifahren' # D99 
+	| 'Skispringen' # D99 
+	| 'Wrestling' # +AG
+	| 'Verkehrswesen'
+	| 'Eisenbahn'
+    | 'Flößerei' # -D99
+	| 'Flugwesen' # D99 auch: Luftfahrt
+	| 'Frachtwesen' # D99 --> Transportwesen
+	| 'Kfz-Wesen' # D99
+	| 'Navigation' # -D99
+	| 'Raumfahrt' # D99
+	| 'Schifffahrt'
+	| 'Binnenschifffahrt' # D99
+	| 'Nautik' # D99
+	| 'Seewesen' #-D99  
+	| 'Transportwesen' 
+	| 'Bildungswesen'
+	| 'Hochschulwesen'
+	| 'Verbindungswesen' # -D99 
+	| 'Schulwesen'
+	| 'Handwerk'
+	| 'Bäckerei'
+	| 'Blumenbinderei' # D99
+	| 'Brauerei' # D99
+	| 'Böttcherei' # D99
+	| 'Buchbinderei' # D99
+	| 'Buchwesen' # D99, auch: Buch- u. Schriftw.
+	| 'Dachdeckerei' # D99
+	| 'Druckwesen' # TODO --> Druckerei
+	| 'Druckerei' # D99 == Druckwesen
+	| 'Fleischerei' # D99
+	| 'Färberei' # D99
+	| 'Friseurhandwerk' # D99
+	| 'Gartenbau'
+	| 'Gerberei' # D99
+	| 'Gießerei'
+	| 'Glaserei' # D99
+	| 'Holztechnik' # D99
+	| 'Holzverarbeitung' # D99
+	| 'Keramik' # D99
+    | 'Klavierbau' # -D99  
+	| 'Kürschnerei' # D99
+	| 'Kunsthandwerk' # D99
+	| 'Möbelbau' # D99
+	| 'Musikinstrumentenbau' # NSch+AG
+    | 'Orgelbau' # -D99
+	| 'Polsterei' # D99
+	| 'Sattlerei' # D99
+	| 'Schlosserei' # D99
+	| 'Schmiedehandwerk' # D99
+	| 'Schneiderei'
+	# | 'Schreinerei' # -D99
+	| 'Schuhmacherei' # D99
+	| 'Spinnerei' # D99
+	| 'Tischlerei' # D99
+	| 'Uhrmacherei'
+	| 'Weberei' # D99
+	| 'Zimmerei' # D99
+	| 'Recht' # D99, im Unterschied zu Jura als Wissenschaftsgebiet
+	# | 'Gericht' # -D99  
+	| 'Handelsrecht' # D99 
+	| 'Arbeitsrecht' # D99
+	| 'katholisches Kirchenrecht' # D99 
+	| 'Patentrecht' # D99 
+	| 'römisches Recht' # D99 	
+	| 'Seerecht' # D99 	
+	| 'Staatsrecht' # D99 	
+	| 'Strafrecht'  
+	# | 'Jugendstrafrecht' # -D99
+	| 'Verfassungswesen' # -D99 --> Recht?
+	# | 'schweizerisches Verfassungswesen' # -D99
+	| 'Völkerrecht' # D99 	
+	| 'Wechselrecht' # D99 	
+	| 'Wettbewerbsrecht' # D99 	
+	| 'Technik'
+	| 'Bautechnik' # D99
+	| 'Bühnentechnik' # D99
+	| 'chemische Technik' # D99
+	| 'EDV' # -D99
+	| 'Elektronik'
+	| 'Elektrotechnik'
+	| 'Energietechnik' # D99
+	| 'Halbleitertechnik' # D99
+	| 'Fernsehtechnik' # D99
+	| 'Fertigungstechnik'
+        | 'Fotografie'
+	| 'Funk' # (D99: Funkwesen)
+	| 'Funktechnik'
+	| 'Zeitungswesen' # D99
+	| 'grafische Technik' # D99 TODO --> Druckwesen?
+	| 'Heizungstechnik' # D99
+	# | 'Informationstechnik' # AH: -D99, vgl. Informations- und Telekommunikationstechnik
+	| 'Informations- und Telekommunikationstechnik'
+	| 'Fernsprechwesen' # -D99
+	| 'Telegrafie' # -D99
+	| 'Textverarbeitung' # -D99
+	| 'Kerntechnik' # D99
+	| 'Kfz-Technik'
+	| 'Klimatechnik' # D99
+	| 'Lebensmitteltechnik'
+	| 'Maschinenbau' # D99
+	| 'Messtechnik' # D99
+	| 'Metallbearbeitung'
+	| 'Holzbearbeitung' # -D99
+	| 'Steinbearbeitung' # -D99
+	| 'Metallurgie' # TODO: ?
+	| 'Münztechnik' # D99
+	| 'Nachrichtentechnik'
+	| 'Raketentechnik' # D99
+	| 'Reaktortechnik' # D99
+	| 'Regelungstechnik'
+	| 'Rundfunktechnik' # D99
+	| 'Schiffbau'
+	# | 'Sprengtechnik' # -D99
+	| 'Tontechnik' # D99
+	| 'Umwelttechnik'
+	| 'Videotechnik' # #D99  -- viel zu überspezifisch
+	| 'Waffentechnik'
+	| 'Werkstoffkunde' # -D99
+	| 'Werkstoffprüfung' # D99
+	| 'Werkstofftechnik' # D99  
+	| 'Verwaltung'
+	| 'Bibliothekswesen' # D99
+	| 'Bürowesen'
+	| 'Buchführung' # D99
+	# | 'Maschinenschreiben' # -D99
+	| 'Denkmalpflege' # D99
+	| 'Dokumentation' # D99
+	| 'Finanzwesen'
+	| 'Bankwesen' # D99
+	| 'Börsenwesen' # D99
+	| 'Geldwesen' # D99
+	| 'Zollwesen' # D99
+	| 'Gesundheitswesen' # D99
+	| 'Rettungswesen' # D99
+	| 'Meldewesen' # D99
+	| 'Münzwesen' # D99
+	| 'Nachrichtenwesen' # D99 
+	| 'Polizei' # D99 auch: Polizeiw.
+	| 'Kriminalistik' # D99
+	| 'Post' # D99: Postwesen
+	| 'Steuerwesen'
+	| 'Vermessungswesen'
+	| 'Wohnungswesen' # D99
+	| 'Wirtschaft'  
+	| 'Bauwesen'
+	| 'Deichbau' # D99
+	| 'Straßenbau' # D99
+	| 'Tiefbau' # D99
+	| 'Wasserbau' # D99
+	| 'Bergbau'
+	| 'Energiewirtschaft' # D99
+	| 'Fischerei' # D99: Fischereiwesen
+	| 'Forstwesen' # D99  
+	| 'Gastronomie'
+	| 'Kochkunst' # D99
+	| 'Handel'
+	| 'Buchhandel' # D99
+	| 'Kunsthandel' # D99
+	| 'Hotelwesen'
+	| 'Hüttenwesen'
+	| 'Industrie'
+	| 'Fahrzeugbau' # D99
+	| 'Lebensmittelindustrie'
+	| 'Papierherstellung' # D99
+	| 'Tabakwarenindustrie' # D99 auch: Tabakindustrie
+	| 'Textilindustrie'
+	| 'Textilwesen' # --> Textilindustrie
+	| 'Landwirtschaft'
+	| 'Ackerbau'
+	| 'Obstbau' # D99
+	| 'Tierzucht'
+	| 'Geflügelzucht' # D99
+	| 'Imkerei' # D99
+	| 'Molkerei' # D99
+	| 'Pferdezucht' # D99
+	| 'Weinbau' # D99
+	| 'Touristik'
+	| 'Verlagswesen' # --> Druckwesen?
+	| 'Versicherungswesen'
+	| 'Rentenversicherung' # D99, TODO --> Versicherungswesen
+	| 'Sozialversicherung' # D99 --> Versicherungswesen
+	| 'Wasserwirtschaft'
+	| 'Werbung' # D99
+	| 'Wissenschaft'
+	| 'angewandte Sozialwissenschaften' # AH: das ist ein Fremdkörper an dieser Stelle
+	| 'Sozialwissenschaften' # -D99
+	# | 'Demoskopie' # -D99
+	| 'Marktforschung' # D99
+	| 'Meinungsforschung' # D99
+    	| 'Anthropologie'
+	| 'Arbeitswissenschaft'
+	| 'Architektur'
+	| 'ägyptische Architektur' # D99
+	| 'islamische Architektur' # D99
+	| 'Archäologie'  
+	| 'Astronomie'
+	| 'Kosmologie' # D99
+	| 'Biologie'
+	| 'Bakteriologie'
+        | 'Botanik'
+        | 'Phytopathologie' # -D99
+        | 'Genetik' # D99  
+        | 'Paläontologie' # D99
+        | 'Paläobotanik' # D99
+        | 'Paläozoologie' # D99
+	| 'Zoologie'
+	# | 'Insektenkunde' # -D99
+	| 'Biotechnologie'
+	| 'Gentechnik' # D99
+	| 'Chemie'
+	| 'Biochemie'
+	| 'Quantenchemie' # D99
+	| 'Ernährungswissenschaft'
+	| 'Ethnologie' # D99 == Völkerkunde
+	| 'Genealogie' # D99
+	| 'Geowissenschaften'
+	| 'Bodenkunde' # D99
+	| 'Edelsteinkunde' # D99
+	| 'Geodäsie' # D99
+	| 'Geografie'
+	| 'Geologie'
+	| 'Geophysik' # D99
+	| 'Höhlenkunde' # D99
+	| 'Kartografie' # D99
+	| 'Ökologie'
+	| 'Limnologie' # D99
+	| 'Umweltschutz' # D99
+	| 'Meereskunde'
+	| 'Meteorologie'
+	| 'Mineralogie' # D99
+	| 'Geschichtswissenschaft'
+	| 'Altertumswissenschaft' # D99
+	| 'Paläografie' # D99
+	| 'Prähistorie' # D99
+	| 'Sozialgeschichte' # D99
+	| 'Graphologie' # D99
+	| 'Heraldik'
+	# | 'französische Heraldik' # -D99
+	| 'Informatik' # D99
+	# | 'Informationswissenschaft' # +LL, AH: sehe den Anwendungsfall hier nicht
+	| 'Jura'
+	| 'Kriminologie' # D99
+	| 'Kommunikationsforschung' # D99
+	| 'Kristallografie' # D99  
+	| 'Kunstgeschichte'
+	| 'Kunstwissenschaft' # D99  
+	| 'Kybernetik' # -D99
+	| 'Literatur' # -D99
+	| 'Literaturwissenschaft'
+	| 'antike Literaturwissenschaft' # D99
+	| 'antike Verslehre' # TODO --> Verslehre
+	| 'Dichtkunst' # D99  
+	# | 'Dichtung' # -D99  
+	| 'Metrik' # -D99
+	| 'antike Metrik' # -D99
+	# | 'spätantike Metrik' # -D99
+	| 'Science-Fiction' # -D99  
+	| 'Stilistik' # D99 
+	| 'Stilkunde' # D99, TODO: == Stilistik!
+	| 'Verslehre' # D99  
+	| 'Logik'
+	| 'antike Logik' # D99
+	| 'mathematische Logik' # D99
+	| 'Mathematik'
+	| 'Geometrie' # D99
+	| 'Mengenlehre' # D99
+	| 'Spieltheorie' # D99
+	| 'Statistik' # D99
+	| 'Medizin' 
+	| 'Anatomie'
+	| 'Arbeitsmedizin' # D99
+	| 'Augenoptik' # D99  
+	| 'Gerichtsmedizin' # D99
+	| 'Neurochirurgie' # D99
+	| 'Neurologie' # D99
+	| 'Physiologie'
+	| 'Psychiatrie' # D99
+	| 'Sportmedizin' # D99
+	| 'Tiermedizin' # D99
+	| 'Zahnmedizin'
+	| 'Zahntechnik' # --> Zahnmedizin
+	# | 'Metallografie' # -D99  
+	| 'Musikwissenschaft'
+	| 'Numismatik' # D99: Münzkunde
+	| 'Pädagogik'
+	| 'Sozialpädagogik' # Wahrig
+	| 'Pharmazie'  
+	| 'Philosophie'
+	| 'antike Philosophie' # D99
+	# | 'atomistische Philosophie' # -D99
+	| 'Ethik' # D99
+	| 'Existenzphilosophie' # D99
+	| 'griechische Philosophie' # D99
+	| 'Marxismus' # D99 auch: marxistisch
+	# | 'dialektischer Materialismus' # -WDG
+	| 'Marxismus-Leninismus' # -D99 
+	| 'Naturphilosophie' # D99
+	| 'Alchemie' # D99
+	| 'Scholastik'
+	| 'Sozialphilosophie' # D99
+	| 'Sprachphilosophie' # D99
+	| 'Staatsphilosophie' # D99
+	| 'Wissenschaftstheorie' # D99
+	| 'Physik'  
+	| 'Akustik' # D99
+	| 'Elektroakustik' # -D99
+	| 'Atomphysik' # D99 TODO: --> Kernphysik
+	| 'Ballistik' # D99
+	| 'Elektrodynamik' # D99 
+	| 'Kernphysik' # -D99, AH: vgl. Atomphysik
+	| 'Mechanik' # D99
+	| 'Optik' # D99
+	| 'Quantenphysik' 
+	| 'Relativitätstheorie'
+	| 'Strömungslehre' # D99
+	| 'Thermodynamik' # D99
+	| 'Weltraumphysik' # D99
+	| 'Politikwissenschaft'
+	| 'Psychologie'
+	| 'Psychoanalyse' # D99
+	| 'Sozialpsychologie' # D99
+	| 'Sprachpsychologie' # D99
+	| 'Tiefenpsychologie' # D99
+	| 'Verhaltensforschung' # D99
+	| 'Werbepsychologie' # D99
+	| 'Sexualkunde' # /* NSCH: @LL?: mehrdeutig; > 'Sexualwissenschaft'?
+	| 'Soziologie'
+	| 'Naturwissenschaft' # -D99
+	| 'Sprachwissenschaft'
+	| 'Grammatik' # D99  
+	| 'klassische Philologie' # D99
+	| 'Lexikografie' # D99
+	| 'Namenkunde' # D99
+	| 'Phonetik' # D99
+	| 'Rhetorik' # D99
+	| 'antike Rhetorik' #-D99, TODO: Rhetorik
+	| 'Soziolinguistik' # D99  
+	| 'Theaterwissenschaft'
+	| 'Theologie' 
+	| 'christliche Theologie' # D99
+	| 'evangelische Theologie' # D99
+	| 'katholische Theologie' # D99, auch: katholische Moraltheologie
+	| 'Volkskunde' # D99
+	| 'Verkehrswissenschaft'
+	| 'Wirtschaftswissenschaft'
+	| 'Betriebswirtschaft' # D99
+	#| 'Finanzwissenschaft' # == Finanzwesen?
+	| 'politische Ökonomie'
+	| 'Volkswirtschaft' # D99
+	| 'Wirtschaftstheorie' # D99
+	# | 'marxistische Wirtschaftstheorie' #-D99
+	)
+}

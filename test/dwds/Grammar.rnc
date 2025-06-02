@@ -1,0 +1,363 @@
+default namespace = 'http://www.dwds.de/ns/1.0'
+namespace sch = 'http://purl.oclc.org/dsdl/schematron'
+
+#####################################################################
+# wortklassenspezifische Grammatik-Gruppe auf Artikel-Ebene
+#####################################################################
+
+[
+  sch:pattern [
+    sch:rule [
+      context = "//d:Formangabe/d:Grammatik[d:Wortklasse[text() = 'Substantiv']][not(d:Numeruspraeferenz[text() = 'nur im Singular'])][not(d:Numeruspraeferenz[text() = 'nur im Plural'])][not(d:Genus[text() = 'ohne erkennbares Genus'])]"
+      sch:assert [
+        test = "d:Genus"
+        'Fehlende Genusangabe ergänzen!'
+      ]
+      sch:assert [
+        test = "d:Genitiv"
+        'Fehlende Eckform(en) Genitiv/Singular ergänzen!'
+      ]
+      sch:assert [
+        test = "d:Plural"
+        'Fehlende Eckform(en) Nominativ/Plural ergänzen!'
+      ]
+    ]
+    sch:rule [
+      context = "//d:Formangabe/d:Grammatik[d:Wortklasse[text() = 'Substantiv']][d:Numeruspraeferenz[text() = 'nur im Plural']]"
+      sch:assert [
+        test = "not(d:Genus) and not(d:Genitiv) and not(d:Plural)"
+        'Eckformen und/oder Genus entfernen (Pluraletantum)!'
+      ]
+    ]
+    sch:rule [
+      context = "//d:Formangabe/d:Grammatik[d:Wortklasse[text() = 'Substantiv']][d:Numeruspraeferenz[text() = 'nur im Singular']]"
+      sch:assert [
+        test = "d:Genus"
+        'Fehlende Genusangabe ergänzen!'
+      ]
+      sch:assert [
+        test = "d:Genitiv"
+        'Fehlende Eckform(en) Genitiv/Singular ergänzen!'
+      ]
+      sch:assert [
+        test = "not(d:Plural)"
+        'Eckform Nominativ/Plural entfernen (Singularetantum)!'
+      ]
+    ]
+    sch:rule [
+      context = "//d:Formangabe/d:Grammatik[d:Wortklasse[text() = 'Verb']]"
+      sch:assert [
+        test = "d:Praesens and d:Praeteritum and d:Auxiliar and d:Partizip_II"
+        'Fehlende Flexionsangabe(n) (Präsens, Präteritum, Auxiliar, Partizip II)'
+      ]
+    ]
+  ]
+]
+
+Wortklasse = element Wortklasse {
+    attribute class { 'invisible' } ?
+    , attribute Typ {  # TODO: this belongs to word formation, actually
+        'deadjektivisch' | 'deverbal'
+    } ?
+    , (
+        string ''
+        | string 'Substantiv'
+        | string 'Eigenname' # deprecated, use Funktionspraeferenz instead
+        | string 'Verb'
+        | string 'Imperativ'
+        | string 'Adjektiv'
+        | string 'Adverb'
+        | string 'partizipiales Adjektiv'
+        | string 'partizipiales Adverb'
+        | string 'Komparativ'
+        | string 'Superlativ'
+        | string 'Pronominaladverb'
+        | string 'Präposition'
+        | string 'Präposition + Artikel'
+        | string 'bestimmter Artikel'
+        | string 'unbestimmter Artikel'
+        | string 'Konjunktion'
+        | string 'Kardinalzahl'
+        | string 'Ordinalzahl'
+        | string 'Bruchzahl'
+        | string 'Pronomen'
+        | string 'Demonstrativpronomen'
+        | string 'Indefinitpronomen'
+        | string 'Interrogativpronomen'
+        | string 'Personalpronomen'
+        | string 'Possessivpronomen'
+        | string 'Reflexivpronomen'
+        | string 'Relativpronomen'
+        | string 'reziprokes Pronomen'
+        | string 'Interjektion'
+        | string 'Affix'
+        | string 'Mehrwortausdruck'
+        | string 'Partikel'
+    )
+}
+
+Genitiv = element Genitiv {
+	element Wert {
+		(
+			# Flexionsendungen
+			string '-'
+			| string '-en'
+			| string '-ens'
+			| string '-es'
+			| string '-n'
+			| string '-ns'
+			| string '-s'
+			| string '-ses'
+			# Kombinationsformen (mit fakultativen Elementen)
+			| string '-(e)n'
+			| string '-(e)s'
+			| string '-(n)'
+			| string '-(s)'
+			# Vollformen
+			| Flexionstoken
+		)
+	}
+	, Frequenzangabe ?
+	, Diasystematik ?
+}
+
+Plural = element Plural {
+	element Wert {
+		(
+			# Flexionsendungen
+			string '-'
+			| string '-a'
+			| string '-e'
+			| string '-een'
+			| string '-en'
+			| string '-er'
+			| string '-es'
+			| string '-i'
+			| string '-ien'
+			| string '-nen'
+			| string '-n'
+			| string '-ns'
+			| string '-s'
+			| string '-se'
+			| string '-sen'
+			| string '-ta'
+			| string '-ten'
+			# Kombinationsformen (mit fakultativen Elementen)
+			| string '-e(n)'
+			| string '-(e)s'
+			| string '-(n)'
+			| string '-(s)'
+			# Vollformen
+			| Flexionstoken
+		)
+	}
+	, Frequenzangabe ?
+	, Diasystematik ?
+}
+
+Praesens = element Praesens {
+	Rechtschreibstatus ?
+	, element Wert { Flexionstoken }
+	, Frequenzangabe ?
+        , Diasystematik ?
+}
+
+Praeteritum = element Praeteritum {
+	Rechtschreibstatus ?
+	, element Wert { Flexionstoken }
+	, Frequenzangabe ?
+        , Diasystematik ?
+}
+
+Auxiliar = element Auxiliar {
+	element Wert { 'ist' | 'hat' }
+	, Frequenzangabe ?
+        , Diasystematik ?
+}
+
+Partizip_II = element Partizip_II {
+	Rechtschreibstatus ?
+	, element Wert { Flexionstoken }
+	, Frequenzangabe ?
+        , Diasystematik ?
+}
+
+Positivvariante = element Positivvariante {
+	element Wert { Lemmatoken }
+	, Frequenzangabe ?
+        , Diasystematik ?
+}
+
+Komparativ = element Komparativ {
+	element Wert { Lemmatoken }
+	,Frequenzangabe ?
+        , Diasystematik ?
+}
+
+Superlativ = element Superlativ {
+	element Wert { Lemmatoken }
+	,Frequenzangabe ?
+        , Diasystematik ?
+}
+
+grammatische_Angaben = (
+	element indeklinabel { empty } ?
+	, element Genus {
+            string 'mask.'
+            | string 'fem.'
+            | string 'neutr.'
+            | string 'ohne erkennbares Genus'
+        } *
+	# #################
+	# Substantive #####
+	# #################
+	, Genitiv *
+	, Plural *
+
+	# ###############
+	# Verben #######
+	# ###############
+	, element reflexiv { empty } ? # TODO: Wortklasse/@Typ
+	, ( Praesens + , Praeteritum + ) ?
+	, Auxiliar *
+	, Partizip_II *
+	
+        # ##################
+	# Adjektive #######
+	# ##################
+	, (
+        	Positivvariante ?
+		, Komparativ *
+		, Superlativ *
+		, element Komparationspraeferenz {
+			string 'ohne Steigerung'
+			| string 'Steigerung selten'
+			| string 'ohne Komparativ'
+			| string 'meist im Superlativ'
+			| string 'nur im Superlativ'
+			| string 'Komparativ selten'
+			| string 'Komparativ ungebräuchlich'
+			| string 'Superlativ selten'
+			| string 'Superlativ ungebräuchlich'
+		} *
+	) ?
+	, element Kasuspraeferenz {
+		Frequenzbeschraenkung ?
+		, (
+			string 'mit Genitiv'
+                        | string 'im Genitiv'
+			| string 'Genitiv ungebräuchlich'
+                        | string 'im Dativ'
+			| string 'mit Dativ'
+                        | string 'mit Dativ Plural'
+                        | string 'im Akkusativ'
+			| string 'mit Akkusativ'
+			| string 'im Nominativ'
+			| string 'mit Nominativ'
+		)
+	} *
+	, element Numeruspraeferenz {
+		(
+			string 'nur im Plural'
+			| string 'meist im Plural'
+			| string 'Singular selten'
+			| string 'Singular ungebräuchlich'
+			| string 'Plural ungebräuchlich'
+			| string 'Plural selten'
+			| string 'meist im Singular'
+			| string 'nur im Singular'
+		)
+	} ?
+	, element Funktionspraeferenz {
+		Frequenzbeschraenkung ?
+		, (
+			'Sonderfunktionen'
+			| 'zeitlich' | 'steht oft zeitlichem Gebrauch nahe'
+			| 'räumlich'
+			| 'kausal' 
+			| 'konjunktional'
+			| 'relativ'
+			| 'modal' | 'ist eng mit der modalen Verwendung verbunden'
+			| 'in Verbindung mit Modalverben' # MWA
+			| 'konditional'
+			| 'interrogativ'
+			| 'instrumental'
+			| 'attributiv'
+			| 'prädikativ'
+			| 'adverbiell'
+			| 'adjektivisch'
+			| 'verbal'
+			| 'präpositional'
+			| 'konjunktional'
+			| 'substantivisch' | 'nominal'
+			| 'pronominal'
+			| 'partikelhaft'
+			| 'als Ausruf' | 'steht einem Ausruf nahe' # TODO: prag?
+			| 'als Interrogativpronomen'
+			| 'als Indefinitpronomen'
+			| 'als Kardinalzahl'
+			| 'als unbestimmter Artikel'
+			| 'als Relativpronomen'
+			| 'als Genitivattribut'
+                        | 'als Eigenname'
+			| 'im Übergang zum Indefinitpronomen'
+			| 'im Übergang zur Konjunktion'
+			| 'im Übergang zur Präposition'
+		)
+	} *
+	, element Artikelpraeferenz {
+		Frequenzbeschraenkung ?
+		, (
+			'ohne Artikel'
+			| 'mit bestimmtem Artikel'
+			| 'mit unbestimmtem Artikel'
+			| xsd:token { pattern = '(auch )?mit .+pronomen' }
+			| xsd:token { pattern = '(auch )?mit anderen Zahlwörtern' }
+		)
+	} *
+	, element Einschraenkung {
+		Frequenzbeschraenkung ?
+		, formaler_Text
+	} *
+	, Kommentar ?
+)
+
+#####################################################################
+# syntaktische Annotationen für Kollokationen
+#####################################################################
+
+syntaktische_Relationen = (
+	'Stichwort_ist_Adjektivattribut_von'
+	| 'Stichwort_ist_Adverbialbestimmung_von'
+	| 'Stichwort_ist_Akkusativobjekt_von'
+	| 'Stichwort_ist_Aktivsubjekt_von'
+	| 'Stichwort_ist_Apposition'
+	| 'Stichwort_ist_Dativobjekt_von'
+	| 'Stichwort_ist_Genitivattribut_von'
+	| 'Stichwort_ist_Genitivobjekt_von'
+	| 'Stichwort_ist_in_Koordination_mit'
+	| 'Stichwort_ist_in_Präpositionalgruppe/-objekt_zu'
+	| 'Stichwort_ist_in_vergleichender_Wort-/Nominalgruppe_zu'
+	| 'Stichwort_ist_partitive_Apposition'
+	| 'Stichwort_ist_Passivsubjekt_von'
+	| 'Stichwort_ist_Prädikativ_von'
+	| 'Stichwort_ist_Präpositionalattribut_von'
+	| 'Stichwort_ist_Präpositionalobjekt_von'
+	| 'Stichwort_ist_Präposition_zu'
+	| 'Stichwort_ist_Subjekt_von_(Aktiv/Passiv)'
+	| 'Stichwort_hat_Adjektivattribut'
+	| 'Stichwort_hat_Adverbialbestimmung'
+	| 'Stichwort_hat_Akkusativobjekt'
+	| 'Stichwort_hat_Aktivsubjekt'
+	| 'Stichwort_hat_Apposition'
+	| 'Stichwort_hat_Dativobjekt'
+	| 'Stichwort_hat_Genitiv-/Akkusativ-/Dativobjekt'
+	| 'Stichwort_hat_Genitivattribut'
+	| 'Stichwort_hat_partitive_Apposition'
+	| 'Stichwort_hat_Passivsubjekt'
+	| 'Stichwort_hat_Prädikativ'
+	| 'Stichwort_hat_Präpositionalgruppe/-objekt_mit'
+	| 'Stichwort_hat_Subjekt_(Aktiv/Passiv)'
+	| 'Stichwort_hat_Verbzusatz'
+	| 'Stichwort_hat_vergleichende_Wort-/Nominalgruppe_mit'
+)

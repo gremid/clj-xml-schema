@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<DWDS xmlns="http://www.dwds.de/ns/1.0">
+    <Artikel Quelle="DWDS" Status="Artikelrumpf" Typ="Minimalartikel" xml:id="[ID]" Zeitstempel="[DATUM]" Erstfassung="DWDS">
+        <Formangabe Typ="Hauptform">
+            <Schreibung>[SCHREIBUNG]</Schreibung>
+            <Aussprache><IPA/></Aussprache>
+            <Grammatik>
+              <Wortklasse>[WORTKLASSE]</Wortklasse>
+            </Grammatik>
+            <Diasystematik></Diasystematik>
+        </Formangabe>
+        <Orthografie></Orthografie>
+        <Verweise></Verweise>
+        <Diachronie>
+            <Etymologie></Etymologie>
+            <Formgeschichte></Formgeschichte>
+            <Bedeutungsgeschichte></Bedeutungsgeschichte>
+            <Verweise></Verweise>
+        </Diachronie>
+        <Lesart>
+            <Syntagmatik></Syntagmatik>
+            <Diasystematik></Diasystematik>
+            <Verweise></Verweise>
+            <Definition Typ="Basis"></Definition>
+            <Kollokationen></Kollokationen>
+            <Verwendungsbeispiele></Verwendungsbeispiele>
+        </Lesart>
+        <Rohdaten>
+          <Verwendungsbeispiele>
+          </Verwendungsbeispiele>
+        </Rohdaten>
+    </Artikel>
+</DWDS>

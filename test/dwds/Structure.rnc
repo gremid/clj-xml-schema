@@ -1,0 +1,527 @@
+default namespace = 'http://www.dwds.de/ns/1.0'
+namespace sch = 'http://purl.oclc.org/dsdl/schematron'
+
+# spezielle Datentypen
+
+Lemmatoken = (
+    
+    # this pattern triggers an infinite loop in jing
+    # when there are "(" or ")" somewhere after whitespace
+    # pattern = '([\p{L}\p{Nd}\-\.’]+(,? |\?|!)?)+|&|m³|cm³|m²|cm²|km²'
+    
+    # default
+    #   \p{L}  = letter
+    #   \p{Nd} = decimal digit number
+    #   \p{No} = other number (e.g. sub- and superscripts)
+    #   \p{Sc} = currency symbols (e.g. €)
+    #   \p{Sm} = mathematical symbols (e.g. +, ×)
+    #   \p{So} = miscellaneous symbols (e.g. ⚭)
+    xsd:token {	pattern = "[\p{L}\p{Nd}\p{No}\p{Sc}\p{Sm}\p{So}\-’&%؉\.…,\s]+[!\?]?" }
+    # exceptions
+    | xsd:token { pattern = '08/15|c/o|inter\*|trans\*|Wort-/Bildmarke' }
+)
+
+Flexionstoken = xsd:token { pattern = "[\p{L}\p{Nd}\p{No}\p{Sc}\p{Sm}\-\.’&%\s]+" }
+
+formaler_Text = (
+	# we cannot have mixed content with typed data :(
+	#xsd:token {
+		# letters, numbers, currency signs, math. signs,
+		# selected punctuation signs
+		# # NOTE: EN-DASH, MINUS SIGN, FRACTION SLASH, RATIO ...
+		# # instead of (free standing) HYPHEN-MINUS, SOLIDUS, COLON!
+	#	pattern = '[\p{L}\p{N}\p{Sc}\p{Sm}\-–⁄\.,…!\?\(\)»«°′⏑&\s‍]*'
+	#}
+	text
+	& semantischer_Verweis *
+	& externer_Verweis *
+)
+
+
+########################################
+# Lesarten #############################
+########################################
+
+Lesartangabe = element Lesart {
+	Metadaten.allgemein ?
+	, Glossar ?
+	, attribute Wortfeld { token } ? # Lexikonet concept
+	, attribute class { 'invisible' } ?
+	, attribute xml:id { Metadaten.Lesarten-ID } ? # TODO: obligatorisch machen
+	, Gliederungsmarke ?
+	# formale Eigenschaften
+	, Formbeschränkung *
+	, Syntagmatik
+	, Frequenzangabe ?
+	
+        # Semantik
+	, Diasystematik
+	, semantische_Verweise
+	, Definition +
+	, Kommentar ?
+	, Illustration *
+	, element Kollokationen {
+		Metadaten.allgemein ?
+		, Kollokation *
+	}
+	, Verwendungsbeispiele
+	, Lesartangabe *
+}
+
+########################################
+# Belege und Kollokationen #############
+########################################
+
+[
+  sch:pattern [
+    sch:rule [
+      context = "//d:Loeschung"
+      sch:assert [
+        test = "string-join(./preceding-sibling::text()/normalize-space(), '') != ''"
+        'Kein Löschungen am Anfang eines Belegtextes'
+      ]
+      sch:assert [
+        test = "string-join(./following-sibling::text()/normalize-space(), '') != ''"
+        'Kein Löschungen am Ende eines Belegtextes'
+      ]
+    ]
+  ]
+]
+
+Verwendungsbeispiele = element Verwendungsbeispiele {
+	Metadaten.allgemein ?
+	& Beleg *
+	& Kompetenzbeispiel *
+}
+
+Belegtext = element Belegtext {
+	text
+	& Paraphrase *
+	& semantischer_Verweis *
+	& element Stichwort { Lemmatoken } +
+	& element Streichung { token } *
+	& element Loeschung { token } *
+	& element Autorenzusatz { token } *
+	& Hervorhebung * # nur für rein typografische Markierungen
+}
+
+Hervorhebung = element Hervorhebung { token }
+
+Beleg = element Beleg {
+	Metadaten.allgemein ?
+	, attribute class { 
+		list {
+			(
+				'invisible'
+				| 'good_example'
+				| 'ungewöhnlich'
+				| 'singular_ungewöhnlich'
+				| 'plural_ungewöhnlich'
+				| 'genitiv_ungewöhnlich'
+				| 'genus_ungewöhnlich'
+				| 'schreibung_ungewöhnlich'
+				| 'schreibung_ungültig'
+			) + 
+		}
+	} ?
+	, Belegtext
+	, semantische_Verweise ?
+	, Fundstelle 
+	, Diasystematik ? # TODO: move before Fundstelle
+}
+
+Kompetenzbeispiel = element Kompetenzbeispiel {
+	Metadaten.allgemein ?
+	, attribute class { 'invisible' } ?
+	, Belegtext
+	, semantische_Verweise ?
+	, Diasystematik ?
+}
+
+[
+  sch:pattern [
+    sch:rule [
+      context = "//d:Kollokation | //d:Konstruktionsmuster | //d:Phrasem"
+      sch:assert [
+        test = "not(contains(string-join(.//text(), ''), '/'))"
+        'Keine Schrägstriche in Kollokationen, Konstruktionsmustern, Phrasemen'
+      ]
+      sch:assert [
+        test = "not(contains(string-join(.//text(), ''), ';'))"
+        'Keine Semikolons in Kollokationen, Konstruktionsmustern, Phrasemen – separate Elemente ansetzen!'
+      ]
+    ]
+  ]
+]
+
+Kollokation = element Kollokation {
+	Metadaten.allgemein ?
+	, attribute class { 'invisible' } ?
+	, attribute syntaktische_Relation { syntaktische_Relationen }
+	, attribute semantische_Relation { token } ? # bleibt nach Beschluss der Lex-Runde erst einmal (2024-04-18)
+	, Belegtext
+	, semantische_Verweise ?
+	, Diasystematik ?
+}
+
+# TODO: hier stecken sicherlich auch Kollokationen drin
+Konstruktionsmuster = element Konstruktionsmuster {
+	Metadaten.allgemein ?
+	, attribute class { 'invisible' } ?
+	, Belegtext
+	, Frequenzangabe ?
+	, semantische_Verweise ?
+	, Diasystematik ?
+}
+
+Rektionsmuster = element Rektionsmuster {
+	Metadaten.allgemein ?
+	, attribute class { 'invisible' } ?
+	, Belegtext
+	, Frequenzangabe ?
+	, semantische_Verweise ?
+	, Diasystematik ?
+}
+
+Phrasem = element Phrasem {
+	Metadaten.allgemein ?
+	, attribute class { 'invisible' } ?
+	, Belegtext
+	, Frequenzangabe ?
+	, semantische_Verweise ?
+	, Diasystematik ?
+}
+
+Syntagmatik = element Syntagmatik {
+	Metadaten.allgemein ?
+	& Rektionsmuster *
+	& Konstruktionsmuster *
+	& Phrasem *
+}
+
+
+########################################
+# Verweise #############################
+########################################
+
+[
+  sch:pattern [
+    sch:rule [
+      context = "//d:URL"
+      sch:assert [
+        test = "not(contains(string-join(.//text(), ''), 'archive.org/save/'))"
+	'Archive.org-Link korrigieren!'
+      ]
+    ]
+  ]
+]
+
+semantische_Verweise = element Verweise {
+	Metadaten.allgemein ?
+	, ( semantischer_Verweis | externer_Verweis ) *
+}
+
+[
+  sch:pattern [
+    sch:rule [
+      context = "//d:Artikel/d:Verweise/d:Verweis/d:Ziellesart"
+      sch:assert [
+        test = "normalize-space(.) = ''"
+        "Keine Lesartendesambiguierung in morphologischen Zerlegungen vornehmen"
+      ]
+    ]
+    sch:rule [
+      context = "//d:Verweis[@Typ='MWA']/d:Ziellesart"
+      sch:assert [
+        test = "normalize-space(.) = ''"
+	"Keine Lesartendesambiguierung in MWA-Verweisen vornehmen"
+      ]
+    ]
+  ]
+]
+
+# (Klassifizierung der) morphologische(n) Konstituenten
+Konstituententyp = attribute Typ {
+	'Grundform'
+	| 'Erstglied'
+	| 'Binnenglied'
+	| 'Letztglied'
+	| 'formal_verwandt'
+	| 'MWA-Konstituente'
+	| 'MWA-Zentralartikel'
+}
+
+morphologische_Verweise = element Verweise {
+    # Klassifizierung des morphologischen Prozesses
+	Metadaten.allgemein ?
+	, attribute Typ {
+	    'Simplex'
+	    | 'Derivation'
+	    | 'Komposition'
+	    | 'Konversion'
+	    | 'Kurzwortbildung'
+	    | 'Rückbildung'
+	    | 'Wortkreuzung'
+	    | 'Zusammenrückung'
+	    | 'lexikalisierte_Flexionsform'
+	    | 'neoklassische_Bildung'
+	} ? # TODO: obligatory
+	, attribute class { 'invisible' } ?
+	, ( 
+		element Verweis {
+			Konstituententyp
+			, attribute class { 'invisible' } ?
+	    		, Verweisziel
+    		} *
+		& element Eigenname {
+			Konstituententyp
+			, attribute class { 'invisible' } ?
+			, Lemmatoken
+		} *
+	)
+}
+
+
+semantischer_Verweis = element Verweis {
+	attribute Typ {
+		'MWA' # Verweis aus Einzelwortartikeln auf Mehrwortartikel
+		| 'Entsprechung' # semantische Äquivalenz bei gleichzeitigem Wechsel der Wortklasse
+		| 'Antonym'
+		| 'Synonym'
+		| 'Synonym_MWA_Variante' # synonyme MWA-Formvarianten
+		| 'Hyponym'
+		| 'Hyperonym'
+		| 'Assoziation'
+		| 'vgl'
+		| 'mehr_sv' # Weiterverweis, nur in Etymologie sinnvoll
+	}
+	, attribute class { 'invisible' } ?
+	, Verweisziel
+}
+
+externer_Verweis = element Verweis_extern {
+	attribute Typ { 'Enzyklopädie' | 'Etymologie' }
+	, attribute class { 'invisible' } ?
+	, element Ziellemma { token }
+	, element Ziellesart { token } # remove?
+	, Fundstelle
+}
+
+Verweisziel = (
+	element Ziellemma {
+		Homographenziffer ?
+		, attribute Anzeigeform { token } ?
+		, Lemmatoken
+	}
+	, element Ziellesart { token }
+)
+
+Fundstelle = element Fundstelle {
+	attribute Fundort {
+		xsd:token { pattern = 'dwds(:[^:]+(:[^:]+(:\d+)?)?)?' }
+		| 'amc' # Austrian Media Corpus
+		| 'gbooks'
+		| 'online'
+		| 'Bibliothek'
+		| 'IDS-Archiv'
+		| 'WDG'
+	} ? # TODO: mandatory (as an element?)
+	, attribute Sigle { xsd:token { pattern = '([A-Z]{9}|UNRESOLVED)' } } ?
+	, (
+		# xsd:token in lxml.etree doesn't allow \n
+		token # deprecated TODO: parse it!
+		| (
+			element Autor { token } ?
+			, element Herausgeber { token } ?
+			, element Titel { token } ?
+			, element Kurztitel { token } ?
+			, element Stelle { token } ?
+			, element Datum { xsd:token { pattern = '((\d\d\.)?\d\d.)?\d{4}' } | empty } ?
+			, element URL {
+				xsd:anyURI {
+					pattern = 'https?://[^\s]+'
+				}
+				| empty
+			} ?
+			, element Aufrufdatum {	xsd:token { pattern = '(\d\d\.\d\d.)?\d{4}' } | empty } ? # kann man vlt. in Oxygen automatisch machen
+		)		
+	)
+}
+
+
+sch:pattern [
+    sch:rule [
+        context = "//d:Artikel//d:Fundstelle"
+        sch:assert [
+            test = "normalize-space(string-join(.//text(), '')) != '' "
+            'Fundstellenangabe ergänzen (darf nicht leer sein)!'
+        ]
+    ]
+]
+	
+########################################
+# Bedeutungsangaben und Anmerkungen ####
+########################################
+
+Definition = element Definition {
+	Metadaten.allgemein ?
+	, attribute Typ { 
+		'Basis' 
+		| 'Meta' 
+		| 'Generalisierung' 
+		| 'Spezifizierung' 
+		| 'Enzyklopädie'
+	}
+	, formaler_Text
+}
+
+Paraphrase = element Paraphrase { formaler_Text }
+
+Illustration = element Illustration {
+	Metadaten.allgemein ?
+        , Lizenzangabe
+	, attribute Datei { xsd:anyURI }
+	, element Bildunterschrift { token }
+	, Fundstelle
+} ?
+
+########################################
+# Lemmaform und Flexionsparadigma ######
+########################################
+
+Rechtschreibstatus = attribute Typ {
+	'R'                    # regional use and no norm applies
+	| 'U'                  # once was valid but no longer is
+	| 'U_Falschschreibung' # never was valid
+	| 'U_CH'
+	| 'U_AT'
+}
+
+[
+  sch:pattern [
+    sch:rule [
+      context = "//d:Artikel//d:Formangabe/d:Diasystematik/*"
+      sch:assert [
+        test = "count(ancestor::d:Artikel//d:Formangabe) > 1"
+        'Keine diasystematischen Angaben für einzelne Formangaben'
+      ]
+    ]
+    sch:rule [
+      context = "//d:Artikel//d:Formangabe/d:Frequenzangabe"
+      sch:assert [
+        test = "count(ancestor::d:Artikel//d:Formangabe) > 1"
+        'Keine Frequenzangabe für einzelne Formangaben'
+      ]
+    ]
+  ]
+]
+
+
+Ueberschrift = element Ueberschrift {
+	element Stichwort { Lemmatoken } +
+	& text
+}
+
+Formangabe = element Formangabe {
+	Metadaten.allgemein ?
+	, attribute class { 'invisible' } ? # übergangsweise, um Formangaben mit nur "R-Schreibungen" auszublenden
+	, attribute Typ { 'Hauptform' | 'Nebenform' | 'Abkürzung' | 'Symbol' }
+	, Schreibung +
+	, Aussprache * # TODO oblig.?
+	, element Grammatik {
+            Metadaten.allgemein ? # TODO: remove
+            , attribute Originaltext { token } ? # for Duden99 compatibility, deprecated
+            , Wortklasse
+            , grammatische_Angaben
+        }
+	, Frequenzangabe ?
+	, Diasystematik
+	, Kommentar ?
+}
+
+Formbeschränkung = element Formangabe {
+	Metadaten.allgemein ?
+	, Schreibung *
+	, Aussprache *
+	, element Grammatik {
+            Metadaten.allgemein ? # TODO: remove
+            , grammatische_Angaben
+        } ?
+	, Frequenzangabe ?
+	, Diasystematik
+}
+
+Schreibung = element Schreibung {
+	Metadaten.allgemein ?
+	, Rechtschreibstatus ?
+	, attribute Trennung { list { Lemmatoken + } } ?
+	, attribute CAB-Lemma { xsd:token } ? # TODO: obligatory
+	, Homographenziffer ?
+	, Lemmatoken
+}
+
+[
+    sch:pattern [
+        sch:rule [
+            context = "//d:Schreibung[@Typ][@Trennung]"
+            sch:assert [
+                test = "not(@Typ = ('U', 'U_Falschschreibung'))"
+                'Keine Trennstellen für ungültige Schreibungen angeben!'
+            ]
+        ]
+    ]
+]
+
+Aussprache = element Aussprache {
+	Metadaten.allgemein ?
+	, attribute class { 'invisible' } ?
+	, element IPA {
+		( empty | xsd:token { pattern = "[aãɐeẽiɪoõøɔuyʏæœɑɒəɛʊ ʔbçdfghjklmnprstvwxzðŋɜɹʀʁʃʌʒʙʟʤʦʧ θχ ˈˌː\x{0303}\x{0306}\x{0329}\x{032f} \?,':]+" } )
+		# note: allowed diacritics
+		#   \x{0303} U+0303 COMBINING TILDE
+		#   \x{0306} U+0306 COMBINING BREVE
+		#   \x{0329} U+0329 COMBINING VERTICAL LINE BELOW
+		#   \x{032f} U+032F COMBINING INVERTED BREVE BELOW
+		#
+		# note: [?,':] are legal as input but are automatically
+		# transformed to [ʔˌˈː] periodically
+		#
+		# note: whitespace IS actually allowed
+		# (AND helps structuring the regex)
+		, attribute Audiodatei {
+			xsd:token { pattern = '[0-9]{3}/[A-Za-z\-_]*[1-9]?' }
+		} ?
+	}
+	, Diasystematik ?
+	, Frequenzangabe ?
+}
+
+Orthografie = element Orthografie {
+    Metadaten.allgemein ?
+    , Orthografieregel *
+}
+
+########################################
+# Diasystematik ########################
+########################################
+
+Diasystematik = element Diasystematik {
+	Metadaten.allgemein ?
+	& Bedeutungsebene *
+	& Stilebene *
+	& Stilfaerbung *
+	& Gebrauchszeitraum *
+	& Sprachraum *
+	& Sprachareal *
+	& Gruppensprache *
+	& Fachgebiet *
+}
+
+########################################
+# NLP-Rohdaten #########################
+########################################
+
+Rohdaten = element Rohdaten {
+	Verwendungsbeispiele
+	# eventuell später weiteres Material
+}
