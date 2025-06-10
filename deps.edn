@@ -1,5 +1,5 @@
 {:paths   ["src" "schematron"]
- :deps    {net.sf.saxon/Saxon-HE {:mvn/version "10.8"}
+ :deps    {net.sf.saxon/Saxon-HE {:mvn/version "12.7"}
            org.relaxng/jing      {:mvn/version "20181222" :exclusions [xml-apis/xml-apis]}
            org.relaxng/trang     {:mvn/version "20181222" :exclusions [xml-apis/xml-apis]}}
  :aliases {:test {:extra-paths ["test"]

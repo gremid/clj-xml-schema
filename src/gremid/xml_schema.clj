@@ -7,49 +7,17 @@
    (java.io File InputStream OutputStream Reader StringReader StringWriter Writer)
    (java.net URI URL)
    (javax.xml XMLConstants)
-   (javax.xml.transform Source URIResolver)
+   (javax.xml.transform Source)
    (javax.xml.transform.dom DOMSource)
    (javax.xml.transform.stream StreamSource)
    (javax.xml.validation Schema SchemaFactory)
    (net.sf.saxon Configuration)
    (net.sf.saxon.s9api DocumentBuilder Processor Serializer XdmDestination XdmNode XdmValue XPathCompiler XPathExecutable XsltCompiler XsltExecutable)
    (org.w3c.dom Node NodeList)
-   (org.w3c.dom.ls LSInput LSResourceResolver)
    (org.xml.sax ErrorHandler InputSource SAXParseException)))
 
-(defn resolve-uri
-  "Resolves URIs, with support for the jar URL scheme."
-  ^URI [^URI base ^URI uri]
-  (if (= "jar" (.. base (getScheme)))
-    (let [[base-jar base-path] (str/split (str base) #"!")
-          resolved             (.. (URI. base-path) (resolve uri))]
-      (if-not (.isAbsolute resolved) (URI. (str base-jar "!" resolved)) resolved))
-    (.resolve base uri)))
-
-(def resolver
-  "A resolver with support for resources from JARs on the classpath"
-  (proxy [URIResolver LSResourceResolver] []
-    (resolve [^String href ^String base]
-      (let [base (URI. (or (not-empty base) ""))
-            href (URI. (or (not-empty href) ""))]
-        (StreamSource. (str (resolve-uri base href)))))
-    (resolveResource [_ _ _ ^String href ^String base]
-      (when href
-        (let [base (URI. (or (not-empty base) ""))
-              href (URI. (or (not-empty href) ""))
-              uri  (resolve-uri base href)]
-          (proxy [LSInput] []
-            (getSystemId [] (str uri))
-            (getByteStream [] (io/input-stream uri))
-            (getEncoding [])
-            (getStringData [])
-            (getCharacterStream [])
-            (getPublicId [])
-            (getBaseURI [])))))))
-
 (def ^Configuration configuration
-  (doto (Configuration.)
-    (.setURIResolver ^URIResolver resolver)))
+  (Configuration.))
 
 (def ^Processor processor
   (Processor. configuration))
@@ -171,15 +139,13 @@
     (throw (ex-info "Error while converting RNC to RNG" {:rnc rnc :rng rng}))))
 
 (def rng-schema-factory
-  (let [^SchemaFactory sf
-        (try
-          (SchemaFactory/newInstance XMLConstants/RELAXNG_NS_URI)
-          (catch IllegalArgumentException _
-            (System/setProperty
-             (str (.getName SchemaFactory) ":" XMLConstants/RELAXNG_NS_URI)
-             "com.thaiopensource.relaxng.jaxp.XMLSyntaxSchemaFactory")
-            (SchemaFactory/newInstance XMLConstants/RELAXNG_NS_URI)))]
-    (doto sf (.setResourceResolver resolver))))
+  (try
+    (SchemaFactory/newInstance XMLConstants/RELAXNG_NS_URI)
+    (catch IllegalArgumentException _
+      (System/setProperty
+       (str (.getName SchemaFactory) ":" XMLConstants/RELAXNG_NS_URI)
+       "com.thaiopensource.relaxng.jaxp.XMLSyntaxSchemaFactory")
+      (SchemaFactory/newInstance XMLConstants/RELAXNG_NS_URI))))
 
 (defn ->rng-schema
   [rng]
