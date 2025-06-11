@@ -219,7 +219,7 @@
   "Convert a Schematron failure to an error record."
   [doc failure]
   (let [location      (sch-failure-loc failure)
-        selector      (selector xpath-compiler location)
+        selector      (selector sch-xpath-compiler location)
         ^XdmNode node (-> doc selector first)]
     {:line    (.getLineNumber node)
      :column  (.getColumnNumber node)
