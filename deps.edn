@@ -1,7 +1,8 @@
 {:paths   ["src" "schematron"]
  :deps    {net.sf.saxon/Saxon-HE {:mvn/version "12.7"}
-           org.relaxng/jing      {:mvn/version "20181222" :exclusions [xml-apis/xml-apis]}
-           org.relaxng/trang     {:mvn/version "20181222" :exclusions [xml-apis/xml-apis]}}
+           org.relaxng/jing      {:mvn/version "20181222" :exclusions [xerces/xercesImpl
+                                                                       xml-apis/xml-apis]}
+           org.relaxng/trang     {:mvn/version "20181222"}}
  :aliases {:test {:extra-paths ["test"]
                   :extra-deps  {lambdaisland/kaocha {:mvn/version "1.66.1034"}}
                   :exec-fn     kaocha.runner/exec-fn}}}
